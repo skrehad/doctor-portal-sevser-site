@@ -23,6 +23,9 @@ async function run() {
     const appointmentOptionCollection = client
       .db("doctor-portal")
       .collection("appointmentOptions");
+    const bookingCollection = client
+      .db("doctor-portal")
+      .collection("bookingCollections");
 
     app.get("/appointmentOptions", async (req, res) => {
       const query = {};
