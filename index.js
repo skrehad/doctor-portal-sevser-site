@@ -32,6 +32,13 @@ async function run() {
       const options = await appointmentOptionCollection.find(query).toArray();
       res.send(options);
     });
+
+    app.post("/bookingCollections", async (req, res) => {
+      const booking = req.body;
+      const result = await bookingCollection.insertOne(booking);
+      console.log(result);
+      res.send(result);
+    });
   } finally {
   }
 }
