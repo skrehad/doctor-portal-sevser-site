@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+var jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -26,6 +27,9 @@ async function run() {
     const bookingCollection = client
       .db("doctor-portal")
       .collection("bookingCollections");
+    const usersCollection = client
+      .db("doctor-portal")
+      .collection("userCollections");
 
     app.get("/appointmentOptions", async (req, res) => {
       const date = req.query.date;
@@ -56,6 +60,13 @@ async function run() {
       res.send(options);
     });
 
+    app.get("/bookingCollections", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const bookings = await bookingCollection.find(query).toArray();
+      res.send(bookings);
+    });
+
     app.post("/bookingCollections", async (req, res) => {
       const booking = req.body;
       const query = {
@@ -70,6 +81,25 @@ async function run() {
       }
       const result = await bookingCollection.insertOne(booking);
       // console.log(result);
+      res.send(result);
+    });
+
+    // for get jwt token
+    app.get("/jwt", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      // console.log(user);
+      if (user) {
+        const token = jwt.sign({ email }, process.env.ACCESS_TOKEN);
+        return res.send({ accessToken: token });
+      }
+      res.send({ accessToken: "" });
+    });
+
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
       res.send(result);
     });
   } finally {
